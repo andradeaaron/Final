@@ -1,0 +1,80 @@
+html_content = """
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Ventas - Estación de Servicio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .container { max-width: 500px; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card shadow-sm p-4">
+        <h2 class="text-center mb-4">Registro de Ventas</h2>
+        
+        <div id="responseMessage" class="alert d-none" role="alert"></div>
+
+        <form id="ventaForm">
+            <div class="mb-3">
+                <label for="placa" class="form-label">Placa del vehículo</label>
+                <input type="text" class="form-control" id="placa" required placeholder="Ej: ABC-123">
+            </div>
+            <div class="mb-3">
+                <label for="cantidad" class="form-label">Litros solicitados</label>
+                <input type="number" step="0.01" class="form-control" id="cantidad" required placeholder="0.00">
+            </div>
+            <input type="hidden" id="tanque_id" value="1">
+            
+            <button type="submit" class="btn btn-primary w-100">Registrar Venta</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('ventaForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const responseMessage = document.getElementById('responseMessage');
+        const data = {
+            placa: document.getElementById('placa').value,
+            cantidad: parseFloat(document.getElementById('cantidad').value),
+            tanque_id: parseInt(document.getElementById('tanque_id').value)
+        };
+
+        try {
+            const response = await fetch('/registrar-venta/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            responseMessage.classList.remove('d-none', 'alert-success', 'alert-danger');
+            
+            if (response.ok) {
+                responseMessage.classList.add('alert-success');
+                responseMessage.textContent = result.mensaje || "Venta registrada exitosamente.";
+            } else {
+                responseMessage.classList.add('alert-danger');
+                responseMessage.textContent = result.detail || "Error al registrar la venta.";
+            }
+        } catch (error) {
+            responseMessage.classList.remove('d-none');
+            responseMessage.classList.add('alert-danger');
+            responseMessage.textContent = "Error de conexión con el servidor.";
+        }
+    });
+</script>
+
+</body>
+</html>
+"""
+
+with open('index.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
