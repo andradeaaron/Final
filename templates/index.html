@@ -55,23 +55,36 @@ html_content = """
 
             const result = await response.json();
 
+            // Limpiamos estados anteriores
             responseMessage.classList.remove('d-none', 'alert-success', 'alert-danger');
             
             if (response.ok) {
                 responseMessage.classList.add('alert-success');
                 responseMessage.textContent = result.mensaje || "Venta registrada exitosamente.";
+                document.getElementById('ventaForm').reset(); // Limpiamos el formulario tras éxito
             } else {
                 responseMessage.classList.add('alert-danger');
-                responseMessage.textContent = result.detail || "Error al registrar la venta.";
+                
+                // Lógica mejorada para extraer el mensaje de error
+                let errorMessage = "Error al registrar la venta.";
+                
+                if (typeof result.detail === 'string') {
+                    errorMessage = result.detail;
+                } else if (Array.isArray(result.detail)) {
+                    errorMessage = result.detail.map(err => err.msg).join(", ");
+                } else if (typeof result.detail === 'object') {
+                    errorMessage = JSON.stringify(result.detail);
+                }
+                
+                responseMessage.textContent = errorMessage;
             }
         } catch (error) {
             responseMessage.classList.remove('d-none');
             responseMessage.classList.add('alert-danger');
-            responseMessage.textContent = "Error de conexión con el servidor.";
+            responseMessage.textContent = "Error crítico de conexión con el servidor.";
         }
     });
 </script>
-
 </body>
 </html>
 """
