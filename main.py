@@ -61,3 +61,10 @@ def registrar_venta(placa: str, cantidad: float, tanque_id: int, db: Session = D
     db.refresh(nueva_venta)
     
     return {"mensaje": "Venta registrada con éxito", "venta_id": nueva_venta.id}
+
+
+from fastapi.responses import FileResponse
+
+@app.get("/")
+def read_root():
+    return FileResponse("templates/index.html")
